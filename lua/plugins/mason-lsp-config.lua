@@ -16,7 +16,7 @@ return {
 		"mason-org/mason-lspconfig.nvim",
 		dependencies = { "mason-org/mason.nvim" },
 		opts = {
-			ensure_installed = { "lua_ls", "ts_ls" },
+			ensure_installed = { "lua_ls", "ts_ls", "eslint" },
 			automatic_enable = true,
 		},
 	},
@@ -32,6 +32,8 @@ return {
 			})
 
 			-- Configure lua_ls using the new API
+
+			-- Lua --
 			vim.lsp.config("lua_ls", {
 				capabilities = capabilities,
 				settings = {
@@ -40,6 +42,23 @@ return {
 						workspace = { checkThirdParty = false },
 					},
 				},
+			})
+
+			--ESlint
+			local base_on_attach = vim.lsp.config.eslint.on_attach
+			vim.lsp.config("eslint", {
+				capabilities = capabilities,
+				on_attach = function(client, bufnr)
+					if not base_on_attach then
+						return
+					end
+
+					base_on_attach(client, bufnr)
+					vim.api.nvim_create_autocmd("BufWritePre", {
+						buffer = bufnr,
+						command = "LspEslintFixAll",
+					})
+				end,
 			})
 
 			-- Configure diagnostic display
@@ -51,7 +70,11 @@ return {
 				severity_sort = true,
 			})
 
-			vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "LSP Hover" })
+			vim.keymap.set("n", "K", function()
+				vim.lsp.buf.hover({
+					border = "rounded", -- options: "none", "single", "double", "rounded", "solid", "shadow"
+				})
+			end, { desc = "LSP Hover with border" })
 			vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "LSP Goto Definition" })
 			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "LSP Code Action" })
 		end,

@@ -13,8 +13,6 @@ return {
 				null_ls.builtins.formatting.black, --py
 				null_ls.builtins.formatting.isort, --py
 				-- linter
-				-- require("none-ls.diagnostics.eslint_d"), --js
-				null_ls.builtins.diagnostics.eslint,
 			},
 		})
 
