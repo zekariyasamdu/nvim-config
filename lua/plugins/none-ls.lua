@@ -12,7 +12,7 @@ return {
 				null_ls.builtins.formatting.prettier, --js
 				null_ls.builtins.formatting.black, --py
 				null_ls.builtins.formatting.isort, --py
-				-- linter
+				null_ls.builtins.formatting.clang_format, --c++
 			},
 		})
 

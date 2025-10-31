@@ -1,82 +1,113 @@
 return {
-	{
-		"mason-org/mason.nvim",
-		opts = {
-			ui = {
-				icons = {
-					package_installed = "✓",
-					package_pending = "➜",
-					package_uninstalled = "✗",
-				},
-			},
-		},
-	},
+  {
+    "mason-org/mason.nvim",
+    opts = {
+      ui = {
+        icons = {
+          package_installed = "✓",
+          package_pending = "➜",
+          package_uninstalled = "✗",
+        },
+      },
+    },
+  },
 
-	{
-		"mason-org/mason-lspconfig.nvim",
-		dependencies = { "mason-org/mason.nvim" },
-		opts = {
-			ensure_installed = { "lua_ls", "ts_ls", "eslint" },
-			automatic_enable = true,
-		},
-	},
+  {
+    "mason-org/mason-lspconfig.nvim",
+    dependencies = { "mason-org/mason.nvim" },
+    opts = {
+      ensure_installed = { "lua_ls", "ts_ls", "eslint", "clangd", "tailwindcss"},
+      automatic_enable = true,
+    },
+  },
 
-	{
-		"neovim/nvim-lspconfig",
-		config = function()
-			local capabilities = require("cmp_nvim_lsp").default_capabilities()
-			-- configuring ts using the old api
-			local lspconfig = require("lspconfig")
-			lspconfig.ts_ls.setup({
-				capabilities = capabilities,
-			})
+  {
+    "neovim/nvim-lspconfig",
+    config = function()
+      local capabilities = require("cmp_nvim_lsp").default_capabilities()
+      -- configuring ts using the old api
+      local lspconfig = require("lspconfig")
+      lspconfig.ts_ls.setup({
+        capabilities = capabilities,
+      })
 
-			-- Configure lua_ls using the new API
+      -- Configure lua_ls using the new API
 
-			-- Lua --
-			vim.lsp.config("lua_ls", {
-				capabilities = capabilities,
-				settings = {
-					Lua = {
-						diagnostics = { globals = { "vim" } },
-						workspace = { checkThirdParty = false },
-					},
-				},
-			})
+      -- Lua --
+      vim.lsp.config("lua_ls", {
+        capabilities = capabilities,
+        settings = {
+          Lua = {
+            diagnostics = { globals = { "vim" } },
+            workspace = { checkThirdParty = false },
+          },
+        },
+      })
 
-			--ESlint
-			local base_on_attach = vim.lsp.config.eslint.on_attach
-			vim.lsp.config("eslint", {
-				capabilities = capabilities,
-				on_attach = function(client, bufnr)
-					if not base_on_attach then
-						return
-					end
+      --ESlint
+      local base_on_attach = vim.lsp.config.eslint.on_attach
+      vim.lsp.config("eslint", {
+        capabilities = capabilities,
+        on_attach = function(client, bufnr)
+          if not base_on_attach then
+            return
+          end
 
-					base_on_attach(client, bufnr)
-					vim.api.nvim_create_autocmd("BufWritePre", {
-						buffer = bufnr,
-						command = "LspEslintFixAll",
-					})
-				end,
-			})
+          base_on_attach(client, bufnr)
+          vim.api.nvim_create_autocmd("BufWritePre", {
+            buffer = bufnr,
+            command = "LspEslintFixAll",
+          })
+        end,
+      })
+      --C++
+      vim.lsp.enable("clangd")
 
-			-- Configure diagnostic display
-			vim.diagnostic.config({
-				virtual_text = true,
-				signs = true,
-				underline = true,
-				update_in_insert = false,
-				severity_sort = true,
-			})
+      --tailwind
+      vim.lsp.enable("tailwindcss")
+      vim.lsp.config("tailwindcss", {
+        capabilities = capabilities,
+        settings = {
+          tailwindCSS = {
+            classAttributes = { "class", "className", "class:list", "classList", "ngClass" },
+            includeLanguages = {
+              eelixir = "html-eex",
+              elixir = "phoenix-heex",
+              eruby = "erb",
+              heex = "phoenix-heex",
+              htmlangular = "html",
+              templ = "html",
+            },
+            lint = {
+              cssConflict = "warning",
+              invalidApply = "error",
+              invalidConfigPath = "error",
+              invalidScreen = "error",
+              invalidTailwindDirective = "error",
+              invalidVariant = "error",
+              recommendedVariantOrder = "warning",
+            },
+            validate = true,
+          },
+        },
+      })
 
-			vim.keymap.set("n", "K", function()
-				vim.lsp.buf.hover({
-					border = "rounded", -- options: "none", "single", "double", "rounded", "solid", "shadow"
-				})
-			end, { desc = "LSP Hover with border" })
-			vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "LSP Goto Definition" })
-			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "LSP Code Action" })
-		end,
-	},
+      -- Configure diagnostic display
+      vim.diagnostic.config({
+        virtual_text = true,
+        signs = true,
+        underline = true,
+        update_in_insert = false,
+        severity_sort = true,
+      })
+
+      vim.keymap.set("n", "K", function()
+        vim.lsp.buf.hover({
+          border = "rounded", -- options: "none", "single", "double", "rounded", "solid", "shadow"
+        })
+      end, { desc = "LSP Hover with border" })
+      vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "LSP Goto Definition" })
+      vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "LSP Code Action" })
+    end,
+  },
 }
