@@ -1,5 +1,5 @@
 vim.opt.number = true
-vim.opt.relativenumber = true
+-- vim.opt.relativenumber = true
 vim.opt.wrap = true
 
 -- indentation settings
@@ -8,9 +8,10 @@ vim.opt.shiftwidth = 2     -- Number of spaces used for each step of (auto)inden
 vim.opt.expandtab = true   -- Convert tabs to spaces
 vim.opt.smartindent = true -- Auto-indent new lines
 vim.opt.autoindent = true  -- Copy indent from current line when starting a new one
+vim.opt.termguicolors = true
 
 -- keymaps
-
+vim.keymap.set("n", "<leader>TT", "<cmd>belowright split | terminal<cr>", { desc = "open terminal" })
 --commands
 vim.api.nvim_create_user_command('NvimConfig', 'cd ~/.config/nvim', {})
 vim.api.nvim_create_user_command('ZelConfig', 'cd ~/.config/zellij', {})
